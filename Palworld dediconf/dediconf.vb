@@ -8,8 +8,6 @@
     Public Property PalSpawnNumRate As Double = 1.0
 
     ' Player Settings
-    Public Property PalDamageRateAttack As Double = 1.0
-    Public Property PalDamageRateDefense As Double = 1.0
     Public Property PlayerDamageRateAttack As Double = 1.0
     Public Property PlayerDamageRateDefense As Double = 1.0
     Public Property PlayerStomachDecreaceRate As Double = 1.0
@@ -22,6 +20,8 @@
     Public Property PalStaminaDecreaceRate As Double = 1.0
     Public Property PalAutoHPRegeneRate As Double = 1.0
     Public Property PalAutoHpRegeneRateInSleep As Double = 1.0
+    Public Property PalDamageRateAttack As Double = 1.0
+    Public Property PalDamageRateDefense As Double = 1.0
 
     ' Object and Collection Settings
     Public Property BuildObjectDamageRate As Double = 1.0

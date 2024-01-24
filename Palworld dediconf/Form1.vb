@@ -1,13 +1,24 @@
 ﻿Imports System.Globalization
 Imports System.IO
-Imports System.Security.Cryptography
+Imports System.Security.Policy
 
 Public Class Form1
     Dim config As New PalworldOptionSettings()
     Dim config_old As New PalworldOptionSettings()
     Dim filething As New FolderBrowserDialog
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
+        Dim tt As New ToolTip
+        tt.SetToolTip(Label1, "Sets the name on the server browser list.")
+        tt.SetToolTip(Label2, "Display a brief summary of what players can expect from your server on the in-game server list.")
+        tt.SetToolTip(Label3, "The password used by admins to grant themselves admin permissions in-game.")
+        tt.SetToolTip(Label4, "Sets a password to connect to your server.")
+        tt.SetToolTip(Label5, "Sets the port to connect to your server.")
+        tt.SetToolTip(Label6, "Sets the public IP to connect to your server.")
+        tt.SetToolTip(Label7, "enables or disables the remote admin terminal.")
+        tt.SetToolTip(Label8, "Sets the port to connect to the remote admin terminal.")
+        tt.SetToolTip(Label9, "Sets if the Server uses authentication.")
+        tt.SetToolTip(Label10, "Sets the url to the list of banned steamids")
+        tt.SetToolTip(Label11, "Sets the region of the server")
     End Sub
     Sub LoadConfigFromFile(filePath As String)
 
@@ -165,52 +176,183 @@ Public Class Form1
         If filething.SelectedPath = "" Then
             Exit Sub
         Else
-            Getsettings
+            Getsettings()
             SaveConfigToFile(filething.SelectedPath + "\DefaultPalWorldSettings.bak", config_old)
             SaveConfigToFile(filething.SelectedPath + "\DefaultPalWorldSettings.ini", config)
             MsgBox("File Saved.", MsgBoxStyle.OkOnly, "File Saved.")
         End If
     End Sub
+    Private Sub DecimalTextBox_KeyPress(sender As Object, e As KeyPressEventArgs) Handles T_DropItemAliveMaxHours.KeyPress, T_AutoResetGuildTimeNoOnlinePlayers.KeyPress, T_PalEggDefaultHatchingTime.KeyPress, T_WorkSpeedRate.KeyPress, T_BuildObjectDamageRate.KeyPress, T_BuildObjectDeteriorationDamageRate.KeyPress, T_CollectionDropRate.KeyPress, T_CollectionObjectHpRate.KeyPress, T_CollectionObjectRespawnSpeedRate.KeyPress, T_EnemyDropItemRate.KeyPress, T_PalStomachDecreaceRate.KeyPress, T_PalStaminaDecreaceRate.KeyPress, T_PalAutoHPRegeneRate.KeyPress, T_PalAutoHpRegeneRateInSleep.KeyPress, T_PalDamageRateAttack.KeyPress, T_PalDamageRateDefence.KeyPress, T_PlayerDamageRateAttack.KeyPress, T_PlayerDamageRateDefance.KeyPress, T_PlayerStomachDecreaceRate.KeyPress, T_PlayerStaminaDecreaceRate.KeyPress, T_PlayerAutoHPRegeneRate.KeyPress, T_PlayerAutoHpRegeneRateInSleep.KeyPress, T_DayTimeSpeedRate.KeyPress, T_NightTimeSpeedRate.KeyPress, T_ExpRate.KeyPress, T_PalCaptureRate.KeyPress, T_PalSpawnNumRate.KeyPress
+        ' Allow digits, decimal point, Backspace, and Delete keys
+        If Not Char.IsDigit(e.KeyChar) AndAlso e.KeyChar <> "." AndAlso e.KeyChar <> ControlChars.Back AndAlso e.KeyChar <> ChrW(Keys.Delete) Then
+            e.Handled = True
+        End If
+
+        ' Allow only one decimal point
+        If e.KeyChar = "." AndAlso (TryCast(sender, TextBox).Text.Contains(".") OrElse TryCast(sender, TextBox).SelectionStart = 0) Then
+            e.Handled = True
+        End If
+    End Sub
     Private Sub Showsettings()
+        'server part
         T_ServerName.Text = config.ServerName
         T_ServerDescription.Text = config.ServerDescription
         T_AdminPassword.Text = config.AdminPassword
         T_ServerPassword.Text = config.ServerPassword
-        T_PublicPort.Text = config.PublicPort
+        T_PublicPort.Value = config.PublicPort
         T_PublicIP.Text = config.PublicIP
-        If config.RCONEnabled = True Then
-            C_RCONEnabled.Checked = True
-        Else
-            C_RCONEnabled.Checked = False
-        End If
-        T_RCONPort.Text = config.RCONPort
+        C_RCONEnabled.Checked = config.RCONEnabled
+        T_RCONPort.Value = config.RCONPort
         T_Region.Text = config.Region
-        If config.bUseAuth = True Then
-            C_bUseAuth.Checked = True
-        Else
-            C_bUseAuth.Checked = False
-        End If
+        C_bUseAuth.Checked = config.bUseAuth
         T_BanListURL.Text = config.BanListURL
+        'multiplayer part
+        C_IsMultiplay.Checked = config.bIsMultiplay
+        C_IsPvP.Checked = config.bIsPvP
+        C_CanPickupOtherGuildDeathPenaltyDrop.Checked = config.bCanPickupOtherGuildDeathPenaltyDrop
+        C_EnableNonLoginPenalty.Checked = config.bEnableNonLoginPenalty
+        C_EnableFastTravel.Checked = config.bEnableFastTravel
+        C_IsStartLovationSelectByMap.Checked = config.bIsStartLocationSelectByMap
+        C_ExistPlayerAfterLogout.Checked = config.bExistPlayerAfterLogout
+        C_EnableDefenseOtherGuildPlayer.Checked = config.bEnableDefenseOtherGuildPlayer
+        T_CoopPlayerMaxNum.Value = config.CoopPlayerMaxNum
+        T_ServerPlayerMaxnum.Value = config.ServerPlayerMaxNum
+        'Limits and numbers
+        N_DropItemMaxNum.Value = config.DropItemMaxNum
+        N_DropItemMaxNum_UNKO.Value = config.DropItemMaxNum_UNKO
+        N_BaseCampMaxNum.Value = config.BaseCampMaxNum
+        N_BaseCampWorkersNaxNum.Value = config.BaseCampWorkerMaxNum
+        T_DropItemAliveMaxHours.Text = config.DropItemAliveMaxHours
+        C_AutoResetGuildNoOnlinePlayers.Checked = config.bAutoResetGuildNoOnlinePlayers
+        T_AutoResetGuildTimeNoOnlinePlayers.Text = config.AutoResetGuildTimeNoOnlinePlayers
+        N_GuildPlayerMaxNum.Value = config.GuildPlayerMaxNum
+        T_PalEggDefaultHatchingTime.Text = config.PalEggDefaultHatchingTime
+        T_WorkSpeedRate.Text = config.WorkSpeedRate
+        'death and penalty settings
+        CO_DeathPenalty.Text = config.DeathPenalty
+        C_EnablePlayerToPlayerDamage.Checked = config.bEnablePlayerToPlayerDamage
+        C_EnableFriendlyFire.Checked = config.bEnableFriendlyFire
+        C_EnableInvadersEnemy.Checked = config.bEnableInvaderEnemy
+        C_ActiveUNKO.Checked = config.bActiveUNKO
+        C_EnableAimAssistPad.Checked = config.bEnableAimAssistPad
+        C_EnableAimAssistKeyboard.Checked = config.bEnableAimAssistKeyboard
+        'Object and collection settings
+        T_BuildObjectDamageRate.Text = config.BuildObjectDamageRate
+        T_BuildObjectDeteriorationDamageRate.Text = config.BuildObjectDeteriorationDamageRate
+        T_CollectionDropRate.Text = config.CollectionDropRate
+        T_CollectionObjectHpRate.Text = config.CollectionObjectHpRate
+        T_CollectionObjectRespawnSpeedRate.Text = config.CollectionObjectRespawnSpeedRate
+        T_EnemyDropItemRate.Text = config.EnemyDropItemRate
+        'Pal Settings
+        T_PalStomachDecreaceRate.Text = config.PalStomachDecreaceRate
+        T_PalStaminaDecreaceRate.Text = config.PalStaminaDecreaceRate
+        T_PalAutoHPRegeneRate.Text = config.PalAutoHPRegeneRate
+        T_PalAutoHpRegeneRateInSleep.Text = config.PalAutoHpRegeneRateInSleep
+        T_PalDamageRateAttack.Text = config.PalDamageRateAttack
+        T_PalDamageRateDefence.Text = config.PalDamageRateDefense
+        'player setttings
+        T_PlayerDamageRateAttack.Text = config.PlayerDamageRateAttack
+        T_PlayerDamageRateDefance.Text = config.PlayerDamageRateDefense
+        T_PlayerStomachDecreaceRate.Text = config.PlayerStomachDecreaceRate
+        T_PlayerStaminaDecreaceRate.Text = config.PlayerStaminaDecreaceRate
+        T_PlayerAutoHPRegeneRate.Text = config.PlayerAutoHPRegeneRate
+        T_PlayerAutoHpRegeneRateInSleep.Text = config.PlayerAutoHpRegeneRateInSleep
+        'General settings
+        If config.Difficulty = Nothing Then
+            CO_Difficulty.Text = "None"
+        Else
+            CO_Difficulty.Text = "ERROR"
+        End If
+        T_DayTimeSpeedRate.Text = config.DayTimeSpeedRate
+        T_NightTimeSpeedRate.Text = config.NightTimeSpeedRate
+        T_ExpRate.Text = config.ExpRate
+        T_PalCaptureRate.Text = config.PalCaptureRate
+        T_PalSpawnNumRate.Text = config.PalSpawnNumRate
     End Sub
     Private Sub Getsettings()
+        'server part
         config.ServerName = T_ServerName.Text
         config.ServerDescription = T_ServerDescription.Text
         config.AdminPassword = T_AdminPassword.Text
         config.ServerPassword = T_ServerPassword.Text
-        config.PublicPort = T_PublicPort.Text
+        config.PublicPort = T_PublicPort.Value
         config.PublicIP = T_PublicIP.Text
-        If C_RCONEnabled.Checked = True Then
-            config.RCONEnabled = True
-        Else
-            config.RCONEnabled = False
-        End If
-        config.RCONPort = T_RCONPort.Text
+        config.RCONEnabled = C_RCONEnabled.Checked
+        config.RCONPort = T_RCONPort.Value
         config.Region = T_Region.Text
-        If config.bUseAuth = True Then
-            C_bUseAuth.Checked = True
-        Else
-            C_bUseAuth.Checked = False
-        End If
+        config.bUseAuth = C_bUseAuth.Checked
         config.BanListURL = T_BanListURL.Text
+        'Multiplayer part
+        config.bIsMultiplay = C_IsMultiplay.Checked
+        config.bIsPvP = C_IsPvP.Checked
+        config.bCanPickupOtherGuildDeathPenaltyDrop = C_CanPickupOtherGuildDeathPenaltyDrop.Checked
+        config.bEnableNonLoginPenalty = C_EnableNonLoginPenalty.Checked
+        config.bEnableFastTravel = C_EnableFastTravel.Checked
+        config.bIsStartLocationSelectByMap = C_IsStartLovationSelectByMap.Checked
+        config.bExistPlayerAfterLogout = C_ExistPlayerAfterLogout.Checked
+        config.bEnableDefenseOtherGuildPlayer = C_EnableDefenseOtherGuildPlayer.Checked
+        config.CoopPlayerMaxNum = T_CoopPlayerMaxNum.Value
+        config.ServerPlayerMaxNum = T_ServerPlayerMaxnum.Value
+        'Limits and numbers
+        config.DropItemMaxNum = N_DropItemMaxNum.Value
+        config.DropItemMaxNum_UNKO = N_DropItemMaxNum_UNKO.Value
+        config.BaseCampMaxNum = N_BaseCampMaxNum.Value
+        config.BaseCampWorkerMaxNum = N_BaseCampWorkersNaxNum.Value
+        config.DropItemAliveMaxHours = T_DropItemAliveMaxHours.Text
+        config.bAutoResetGuildNoOnlinePlayers = C_AutoResetGuildNoOnlinePlayers.Checked
+        config.AutoResetGuildTimeNoOnlinePlayers = T_AutoResetGuildTimeNoOnlinePlayers.Text
+        config.GuildPlayerMaxNum = N_GuildPlayerMaxNum.Value
+        config.PalEggDefaultHatchingTime = T_PalEggDefaultHatchingTime.Text
+        config.WorkSpeedRate = T_WorkSpeedRate.Text
+        'death and penalty settings
+        config.DeathPenalty = CO_DeathPenalty.Text
+        config.bEnablePlayerToPlayerDamage = C_EnablePlayerToPlayerDamage.Checked
+        config.bEnableFriendlyFire = C_EnableFriendlyFire.Checked
+        config.bEnableInvaderEnemy = C_EnableInvadersEnemy.Checked
+        config.bActiveUNKO = C_ActiveUNKO.Checked
+        config.bEnableAimAssistPad = C_EnableAimAssistPad.Checked
+        config.bEnableAimAssistKeyboard = C_EnableAimAssistKeyboard.Checked
+        'Object and collection settings
+        config.BuildObjectDamageRate = T_BuildObjectDamageRate.Text
+        config.BuildObjectDeteriorationDamageRate = T_BuildObjectDeteriorationDamageRate.Text
+        config.CollectionDropRate = T_CollectionDropRate.Text
+        config.CollectionObjectHpRate = T_CollectionObjectHpRate.Text
+        config.CollectionObjectRespawnSpeedRate = T_CollectionObjectRespawnSpeedRate.Text
+        config.EnemyDropItemRate = T_EnemyDropItemRate.Text
+        'Pal Settings
+        config.PalStomachDecreaceRate = T_PalStomachDecreaceRate.Text
+        config.PalStaminaDecreaceRate = T_PalStaminaDecreaceRate.Text
+        config.PalAutoHPRegeneRate = T_PalAutoHPRegeneRate.Text
+        config.PalAutoHpRegeneRateInSleep = T_PalAutoHpRegeneRateInSleep.Text
+        config.PalDamageRateAttack = T_PalDamageRateAttack.Text
+        config.PalDamageRateDefense = T_PalDamageRateDefence.Text
+        'player setttings
+        config.PlayerDamageRateAttack = T_PlayerDamageRateAttack.Text
+        config.PlayerDamageRateDefense = T_PlayerDamageRateDefance.Text
+        config.PlayerStomachDecreaceRate = T_PlayerStomachDecreaceRate.Text
+        config.PlayerStaminaDecreaceRate = T_PlayerStaminaDecreaceRate.Text
+        config.PlayerAutoHPRegeneRate = T_PlayerAutoHPRegeneRate.Text
+        config.PlayerAutoHpRegeneRateInSleep = T_PlayerAutoHpRegeneRateInSleep.Text
+        'General settings
+        If config.Difficulty = "None" Then
+            config.Difficulty = Nothing
+        Else
+            config.Difficulty = Nothing
+        End If
+        config.DayTimeSpeedRate = T_DayTimeSpeedRate.Text
+        config.NightTimeSpeedRate = T_NightTimeSpeedRate.Text
+        config.ExpRate = T_ExpRate.Text
+        config.PalCaptureRate = T_PalCaptureRate.Text
+        config.PalSpawnNumRate = T_PalSpawnNumRate.Text
+    End Sub
+
+    Private Sub AboutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem.Click
+        Try
+            ' Start the default web browser with the specified URL
+            Process.Start("https://github.com/tomtenberge/Palworld-dedicated-configurator")
+        Catch ex As Exception
+            ' Handle any exceptions, such as the default browser not being found
+            MessageBox.Show("Error opening webpage: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
 End Class
